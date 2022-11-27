@@ -1,0 +1,6 @@
+{
+	"files.associations": {
+		"struct.h": "c",
+		"semaphore.h": "c"
+	}
+}
