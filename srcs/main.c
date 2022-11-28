@@ -8,7 +8,7 @@
 #include <string.h>
 
 void	base(char **args, bool boost);
-void	get_args_info(char **args);
+void	get_args_info(char **args, bool boost);
 void	get_file_info(char *path, pt_items *items, pt_bag *bag);
 void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer);
 int		process_string_add_item(pt_items items, char *str);
@@ -43,7 +43,7 @@ void	base(char **args, bool boost)
 
 	items = 0;
 	bag = 0;
-	get_args_info(args);
+	get_args_info(args, boost);
 	get_file_info(info->file_name, &items, &bag);
 	proj(info, items, bag);
 	free(items);
@@ -61,11 +61,11 @@ void	base(char **args, bool boost)
  */
 }
 
-void	get_args_info(char **args)
+void	get_args_info(char **args, bool boost)
 {
 	if (atoi(args[0]) < 0 || atoi(args[2]) <= 0 || atoi(args[3]) <= 0 || !strstr(args[1], ".txt"))
 		error_handler(1, NULL, NULL);
-	info = __init_info(atoi(args[0]), args[1], atoi(args[2]), atoi(args[3]));
+	info = __init_info(atoi(args[0]), args[1], atoi(args[2]), atoi(args[3]), boost);
 	if (!info)
 		error_handler(2, NULL, NULL);
 }
@@ -74,11 +74,9 @@ void	get_file_info(char *path, pt_items *items, pt_bag *bag)
 {
 	FILE *	stream;
 	char	buffer[1024];
-	int		counter;
 
 	if (!(stream = fopen(path, "r")))
 		error_handler(3, *items, *bag);
-	counter = 0;
 	while (fgets(buffer, 1024, stream))
 		manage_file_info(items, bag, buffer);
 	info->num_items = (*items)->size;
@@ -116,7 +114,6 @@ void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer)
 int	process_string_add_item(pt_items items, char *str)
 {
 	char **	temp;
-	int		size;
 
 	temp = ft_split(str, ' ');
 	if (!temp || !temp[0] || !temp[1])

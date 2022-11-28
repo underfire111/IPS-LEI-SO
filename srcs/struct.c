@@ -1,6 +1,7 @@
 #include "struct.h"
 
 #include <stdlib.h>
+#include <time.h>
 
 typedef struct s_bag t_bag;
 typedef struct s_item t_item;
@@ -17,7 +18,7 @@ pt_bag __init_bag(int max_weight, int num_items)
 	bag->max_weight = max_weight;
 	bag->curr_weight = 0;
 	bag->curr_price = 0;
-	bag->items = (int *)calloc(sizeof(int), num_items);
+	bag->items = (char *)calloc(sizeof(char), num_items + 1);
 	if (!bag->items)
 	{
 		free(bag);
@@ -50,7 +51,7 @@ pt_items __init_items(size_t capacity)
 	return (items);
 }
 
-pt_info	__init_info(int num_order, char *file_name, int num_processes, int time_limit)
+pt_info	__init_info(int num_order, char *file_name, int num_processes, int time_limit, bool boost)
 {
 	pt_info info;
 
@@ -63,5 +64,17 @@ pt_info	__init_info(int num_order, char *file_name, int num_processes, int time_
 	info->time_limit = time_limit;
 	info->num_items = 0;
 	info->best_result = 0;
+	info->cpids = (int *)malloc(sizeof(int) * num_processes);
+	info->boost = boost;
 	return (info);
+}
+
+t_stats	__init_stats()
+{
+	t_stats stats;
+
+	stats.begin = time(NULL);
+	stats.iterator = 0;
+	stats.time = 0;
+	return (stats);
 }
