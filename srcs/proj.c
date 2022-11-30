@@ -49,7 +49,7 @@ void	proj_0(pt_info temp, pt_items items, pt_bag bag)
 	kill_all();
 	sem_close(update);
 	
-	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.8f |\n",
+	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.9f |\n",
 		_info->num_order, _info->time_limit, _info->num_processes,
 		_info->best_result, result->curr_price, stats->iterator,
 		calc_time_in_secs(stats->time, stats->begin));
