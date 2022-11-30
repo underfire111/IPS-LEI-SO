@@ -28,7 +28,7 @@ int main(int argc, char **argv)
 	else if (argc == 6)
 	{
 		if (strcmp("-b", argv[1]) == 0|| strcmp("--boost", argv[1]) == 0)
-			base(&argv[1], true);
+			base(&argv[2], true);
 		error_handler(1, NULL, NULL);
 	}
 	else if (argc == 5)
@@ -51,13 +51,13 @@ void	base(char **args, bool boost)
 	free(bag);
 	exit(0);
 
-/* 	printf("num_order=%d, file=%s, num_processes=%d, time_limit=%d, best_result=%d\n", 
-		info->num_order, info->file_name, info->num_processes, info->time_limit, info->best_result);
+/* 	printf("num_order=%d \tfile=%s \tnum_processes=%d \ttime_limit=%d \tbest_result=%d \tnum_items=%d\n", 
+		info->num_order, info->file_name, info->num_processes, info->time_limit, info->best_result, info->num_items);
 	for (int i = 0; i < info->num_items; i++)
-		printf("%d, ", bag->items[i]);
-	printf("\nmax_weight=%d, curr_weight=%d, curr_price=%d\n", bag->max_weight, bag->curr_weight, bag->curr_price);
+		printf("%d ", bag->items[i]);
+	printf("\nmax_weight=%d\tcurr_weight=%d\tcurr_price=%d\n", bag->max_weight, bag->curr_weight, bag->curr_price);
 	for (int i = 0; i < info->num_items; i++)
-		printf("item[%d], price=%d, weight=%d\n", i, items->item[i].price, items->item[i].weight);
+		printf("item[%d] \tprice=%d \tweight=%d\n", i, items->item[i].price, items->item[i].weight);
  */
 }
 
@@ -100,7 +100,7 @@ void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer)
 	}
 	else
 	{
-		if (info->num_items-- == 0)
+		if (info->num_items-- <= 0)
 			(info->best_result < atoi(buffer)) ? info->best_result = atoi(buffer) : 0 ;
 		else
 		{
@@ -128,15 +128,15 @@ int	process_string_add_item(pt_items items, char *str)
 void	error_handler(int error_code, pt_items items, pt_bag bag)
 {
 	if (error_code == 1)
-		printf("Invalid arguments!");
+		printf("Invalid arguments!\n");
 	else if (error_code == 2)
-		printf("Crash while initializing framework!");
+		printf("Crash while initializing framework!\n");
 	else if (error_code == 3)
-		printf("Crash while opening the file!");
+		printf("Crash while opening the file!\n");
 	else if (error_code == 4)
-		printf("Crash while processing the file!");
+		printf("Crash while processing the file!\n");
 	else if (error_code == 5)
-		printf("Invalid arguments!");
+		printf("Invalid arguments!\n");
 
 	free(items);
 	free(bag);

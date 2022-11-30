@@ -38,7 +38,7 @@ struct s_info
 	int		time_limit;
 	int		num_items;
 	int		best_result;
-	int *	cpids;
+	pid_t *	cpids;
 	bool	boost;
 };
 

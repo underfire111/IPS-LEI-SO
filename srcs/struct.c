@@ -64,7 +64,7 @@ pt_info	__init_info(int num_order, char *file_name, int num_processes, int time_
 	info->time_limit = time_limit;
 	info->num_items = 0;
 	info->best_result = 0;
-	info->cpids = (int *)malloc(sizeof(int) * num_processes);
+	info->cpids = (int *)calloc(sizeof(int), num_processes);
 	info->boost = boost;
 	return (info);
 }
