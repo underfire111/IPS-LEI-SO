@@ -3,6 +3,7 @@
 
 # include <stdbool.h>
 # include <stdlib.h>
+# include <sys/time.h>
 
 typedef struct s_bag *pt_bag;
 typedef struct s_item *pt_item;
@@ -44,8 +45,8 @@ struct s_info
 
 struct s_stats
 {
-	time_t	begin;
-	time_t	time;
+	struct timeval	begin;
+	struct timeval	time;
 	size_t	iterator;
 };
 

@@ -1,6 +1,7 @@
 #include "proj.h"
 
 #include <fcntl.h>
+#include <memory.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <stdio.h>
@@ -19,6 +20,8 @@ void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update, t_stats *stats);
 void	update_bag_status_0(pt_items items, pt_bag bag, int index);
 void	update_bag_status_1(pt_items items, pt_bag bag, int index);
+double	calc_time_in_secs(struct timeval t1, struct timeval t2);
+
 
 typedef struct	sigaction sigaction_t;
 
@@ -46,10 +49,10 @@ void	proj_0(pt_info temp, pt_items items, pt_bag bag)
 	kill_all();
 	sem_close(update);
 	
-	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %11ld |\n",
+	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.8f |\n",
 		_info->num_order, _info->time_limit, _info->num_processes,
 		_info->best_result, result->curr_price, stats->iterator,
-		(stats->time - stats->begin));
+		calc_time_in_secs(stats->time, stats->begin));
 
 }
 
@@ -94,17 +97,22 @@ void	proj_1(pt_info temp, pt_items items, pt_bag bag)
 	sem_post(update);
 
 	update_all(SIGUSR1);
-	
-	while ((time(NULL) - stats->begin) <= _info->time_limit) ;
+
+	struct timeval t;
+
+	do
+	{
+		gettimeofday(&t, NULL);
+	} while (calc_time_in_secs(t, stats->begin) <= (double)_info->time_limit);
 	
 	kill_all();
 	
 	sem_close(update);
 	
-	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %11ld |\n",
+		printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.9f |\n",
 		_info->num_order, _info->time_limit, _info->num_processes,
 		_info->best_result, result->curr_price, stats->iterator,
-		(stats->time - stats->begin));
+		calc_time_in_secs(stats->time, stats->begin));
 
 }
 
@@ -114,14 +122,11 @@ void	set_shared_memory(pt_bag bag, pt_bag *result, t_stats **stats)
 
 	keys = (char *)mmap(NULL, sizeof(char) * _info->num_items + 1, PROT_READ |
 		PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	for (int i = 0; i < _info->num_items; i++)
-		keys[i] = 1;
-
+	memset(keys, 0, _info->num_items);
 	(*result) = (pt_bag)mmap(NULL, sizeof(struct s_bag), PROT_READ |
 		PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	(*(*result)) = *bag;
 	(*(*result)).items = keys;
-
 	(*stats) = (t_stats *)mmap(NULL, sizeof(t_stats), PROT_READ |
 			PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	(*(*stats)) = __init_stats();
@@ -149,8 +154,7 @@ void	unnamed_function(pt_bag b1, pt_bag b2)
 {
 	b1->curr_price = b2->curr_price;
 	b1->curr_weight = b2->curr_weight;
-	for (int i = 0; i < _info->num_items; i++)
-		b1->items[i] = b2->items[i];
+	memcpy(b1->items, b2->items, _info->num_items);
 }
 
 void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update, t_stats *stats)
@@ -172,7 +176,7 @@ void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 		{
 			unnamed_function(result, bag);
 			stats->iterator = iterator;
-			stats->time = time(NULL);
+			gettimeofday(&stats->time, NULL);
 		}
 		sem_post(update);
 	}
@@ -184,29 +188,34 @@ void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 	int			reset;
 	int			r_index;
 	
-	srand(getpid() + time(NULL));
-	iterator = 0;
 	reset = 0;
+	iterator = 0;
+	srand(getpid() + time(NULL));
 	while (++iterator && ++reset)
 	{
 		if (cheat-- == 1 || reset == 100)
 		{
+			sem_wait(update);
 			unnamed_function(bag, result);
+			sem_post(update);
 			reset = 0;
 		}
 		r_index = rand() % items->size;
 		update_bag_status_1(items, bag, r_index);
-		sem_wait(update);
 		if (bag->curr_price > result->curr_price)
 		{
-			unnamed_function(result, bag);
-			stats->iterator = iterator;
-			stats->time = time(NULL);
-			if (_info->num_processes > 1)
-				kill(getppid(), SIGUSR1);
-			reset = 0;
+			sem_wait(update);
+			if (bag->curr_price > result->curr_price)
+			{
+				unnamed_function(result, bag);
+				stats->iterator = iterator;
+				gettimeofday(&stats->time, NULL);
+				if (_info->num_processes > 1)
+					kill(getppid(), SIGUSR1);
+				reset = 0;
+			}
+			sem_post(update);
 		}
-		sem_post(update);
 	}
 }
 
@@ -263,3 +272,9 @@ void	signal_handler_child(int signum)
 	else if (signum == SIGUSR2)
 		cheat = 1;
 }
+
+double	calc_time_in_secs(struct timeval t1, struct timeval t2)
+{
+	return ((t1.tv_sec - t2.tv_sec) + (t1.tv_usec - t2.tv_usec) / 1000000.0);
+}
+

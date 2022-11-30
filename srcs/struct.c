@@ -73,8 +73,8 @@ t_stats	__init_stats()
 {
 	t_stats stats;
 
-	stats.begin = time(NULL);
+	gettimeofday(&stats.begin, NULL);
+	stats.time = stats.begin;
 	stats.iterator = 0;
-	stats.time = 0;
 	return (stats);
 }
