@@ -45,7 +45,12 @@ void	base(char **args, bool boost)
 	bag = 0;
 	get_args_info(args, boost);
 	get_file_info(info->file_name, &items, &bag);
-	proj(info, items, bag);
+	if (info->boost)
+		proj_1(info, items, bag);
+	else
+		proj_0(info, items, bag);
+	free(items->item);
+	free(bag->items);
 	free(items);
 	free(info);
 	free(bag);
@@ -138,7 +143,9 @@ void	error_handler(int error_code, pt_items items, pt_bag bag)
 	else if (error_code == 5)
 		printf("Invalid arguments!\n");
 
+	free(items->item);
 	free(items);
+	free(bag->items);
 	free(bag);
 	free(info);
 
