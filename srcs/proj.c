@@ -22,12 +22,20 @@ void	update_bag_status_0(pt_items items, pt_bag bag, int index);
 void	update_bag_status_1(pt_items items, pt_bag bag, int index);
 double	calc_time_in_secs(struct timeval t1, struct timeval t2);
 
-
 typedef struct	sigaction sigaction_t;
 
 pt_info	_info = 0;
 int		cheat = 0;
 
+/**
+ * That function set up the shared memory, semaphores
+ *  
+ * @brief Project base version. 
+ * 
+ *  @param [pt_info] pointer to structure s_info.
+ *  @param [pt_items] pointer to structure s_items.
+ *  @param [pt_bag] pointer to structure s_bag.
+*/
 void	proj_0(pt_info temp, pt_items items, pt_bag bag)
 {
 	t_stats *	stats;
@@ -49,10 +57,10 @@ void	proj_0(pt_info temp, pt_items items, pt_bag bag)
 	kill_all();
 	sem_close(update);
 	
-	printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.9f |\n",
-		_info->num_order, _info->time_limit, _info->num_processes,
-		_info->best_result, result->curr_price, stats->iterator,
-		calc_time_in_secs(stats->time, stats->begin));
+	printf("| %4d | %4d | %7d | %6d | %6d | %6d | %9ld  | %2.9f |\n",
+	_info->num_order, _info->time_limit, _info->num_processes,_info->best_result,
+	result->curr_price,result->curr_weight, stats->iterator,
+	calc_time_in_secs(stats->time, stats->begin));
 
 }
 
@@ -109,10 +117,10 @@ void	proj_1(pt_info temp, pt_items items, pt_bag bag)
 	
 	sem_close(update);
 	
-		printf("| %4d | %4d | %7d | %6d | %6d | %9ld  | %2.9f |\n",
-		_info->num_order, _info->time_limit, _info->num_processes,
-		_info->best_result, result->curr_price, stats->iterator,
-		calc_time_in_secs(stats->time, stats->begin));
+	printf("| %4d | %4d | %7d | %6d | %6d | %6d | %9ld  | %2.9f |\n",
+	_info->num_order, _info->time_limit, _info->num_processes,_info->best_result,
+	result->curr_price,result->curr_weight, stats->iterator,
+	calc_time_in_secs(stats->time, stats->begin));
 
 }
 
@@ -122,7 +130,7 @@ void	set_shared_memory(pt_bag bag, pt_bag *result, t_stats **stats)
 
 	keys = (char *)mmap(NULL, sizeof(char) * _info->num_items + 1, PROT_READ |
 		PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
-	memset(keys, 0, _info->num_items);
+	memset(keys, 0, sizeof(char) * _info->num_items);
 	(*result) = (pt_bag)mmap(NULL, sizeof(struct s_bag), PROT_READ |
 		PROT_WRITE, MAP_SHARED | MAP_ANONYMOUS, -1, 0);
 	(*(*result)) = *bag;
@@ -154,7 +162,7 @@ void	unnamed_function(pt_bag b1, pt_bag b2)
 {
 	b1->curr_price = b2->curr_price;
 	b1->curr_weight = b2->curr_weight;
-	memcpy(b1->items, b2->items, _info->num_items);
+	memcpy(b1->items, b2->items, sizeof(char) * _info->num_items);
 }
 
 void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update, t_stats *stats)
@@ -187,13 +195,15 @@ void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 	size_t		iterator;
 	int			reset;
 	int			r_index;
+	int			leash;
 	
 	reset = 0;
 	iterator = 0;
+	leash = 100;
 	srand(getpid() + time(NULL));
 	while (++iterator && ++reset)
 	{
-		if (cheat-- == 1 || reset == 100)
+		if (cheat-- == 1 || reset == leash)
 		{
 			sem_wait(update);
 			unnamed_function(bag, result);
@@ -210,8 +220,7 @@ void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 				unnamed_function(result, bag);
 				stats->iterator = iterator;
 				gettimeofday(&stats->time, NULL);
-				if (_info->num_processes > 1)
-					kill(getppid(), SIGUSR1);
+				kill(getppid(), SIGUSR1);
 				reset = 0;
 			}
 			sem_post(update);

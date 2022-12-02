@@ -13,16 +13,21 @@ void	get_file_info(char *path, pt_items *items, pt_bag *bag);
 void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer);
 int		process_string_add_item(pt_items items, char *str);
 void	error_handler(int error_code, pt_items items, pt_bag bag);
+void	print_help();
 
 pt_info	info = NULL;
 
+/**
+ * The main function analize the arguments and adopt a behaviour according to.
+ * 
+ * @param [int] number of arguments.
+ * @param [char **] arguments.
+*/
 int main(int argc, char **argv)
 {
 	if (argc == 2 && (strcmp("-h", argv[1]) == 0 || strcmp("--help", argv[1]) == 0))
 	{
-		printf("Usage: ./proj [OPTION] order_number path/file number_of_processes program_runtime\n");
-		printf("\t-h, --help\t\tdisplay this help and exit\n");
-		printf("\t-b, --boost\t\ttriggers the boost option at the runtime\n");
+		print_help();
 		exit(0);
 	}
 	else if (argc == 6)
@@ -36,6 +41,14 @@ int main(int argc, char **argv)
 	error_handler(1, NULL, NULL);
 }
 
+/**
+ * That function is the base of the project. It declares the structures, initialize them, calls out
+ * for the function that applies the algorithm, frees the memory allocated to the structures and exit
+ * the program.
+ * 
+ *  @param [char **] argurments.
+ * 	@param [bool] status of flag boost.
+*/
 void	base(char **args, bool boost)
 {
 	pt_items	items;
@@ -66,6 +79,12 @@ void	base(char **args, bool boost)
  */
 }
 
+/**
+ * That function process the arguments and initialize the structure s_info.
+ * 
+ * @param [char **] arguments.
+ * @param [bool] status of boost.
+*/
 void	get_args_info(char **args, bool boost)
 {
 	if (atoi(args[0]) < 0 || atoi(args[2]) <= 0 || atoi(args[3]) <= 0 || !strstr(args[1], ".txt"))
@@ -75,6 +94,13 @@ void	get_args_info(char **args, bool boost)
 		error_handler(2, NULL, NULL);
 }
 
+/**
+ * That function reads the file and call out the functions responsible for proccessing its informations.
+ * 
+ *  @param [char *] string of character with the file path.
+ *  @param [pt_items] reference to the pointer of structure s_items.
+ *  @param [pt_bag] reference to the pointer of structure s_bag.
+*/
 void	get_file_info(char *path, pt_items *items, pt_bag *bag)
 {
 	FILE *	stream;
@@ -88,6 +114,15 @@ void	get_file_info(char *path, pt_items *items, pt_bag *bag)
 	fclose(stream);
 }
 
+/**
+ * That function process the string of character get by parameter and treats it according
+ * with the current counter value. In general it gets the information out of the file
+ * and imports it into the atributes.
+ * 
+ *  @param [pt_items] reference to the pointer of structure s_items.
+ *  @param [pt_bag] reference to the pointer of structure s_bag.
+ *  @param [char *] string of character read from file.
+*/
 void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer)
 {
 	static int	counter = 0;
@@ -116,6 +151,17 @@ void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer)
 	counter++;
 }
 
+/**
+ * That function process a string passed by parameter. If it have all the requirements needed
+ * it creates a new item with the status get through the string and add it to the array of
+ * items into the structure s_items.
+ * 
+ *  @param [pt_items] pointer to the structure s_items.
+ *  @param [char *] string of characters to be processed.
+ * 
+ *  @return 0 - if it adds successfuly the item to the array.
+ *  @return 1 - if it fails to add the item to the array.
+*/
 int	process_string_add_item(pt_items items, char *str)
 {
 	char **	temp;
@@ -130,10 +176,31 @@ int	process_string_add_item(pt_items items, char *str)
 	return (0);
 }
 
+/**
+ * That function prints out the manual of the program.
+*/
+void	print_help()
+{
+	printf("Usage: ./prog [OPTION] order_number path/file number_of_processes program_runtime\n");
+	printf("\t-h, --help\t\tdisplay this help and exit\n");
+	printf("\t-b, --boost\t\ttriggers the boost option at the runtime\n");
+}
+
+/**
+ * That function prints out an error message acording the the error code, frees the the memory
+ * allocated to the structures s_info, s_items and s_bag and terminate the process.
+ * 
+ *  @param [int] error code.
+ *  @param [pt_items] pointer to structure s_items.
+ *  @param [pt_bag] pointer to structure s_bag.
+*/
 void	error_handler(int error_code, pt_items items, pt_bag bag)
 {
 	if (error_code == 1)
-		printf("Invalid arguments!\n");
+	{
+		printf("Invalid arguments!\n\n");
+		print_help();
+	}
 	else if (error_code == 2)
 		printf("Crash while initializing framework!\n");
 	else if (error_code == 3)
@@ -143,9 +210,11 @@ void	error_handler(int error_code, pt_items items, pt_bag bag)
 	else if (error_code == 5)
 		printf("Invalid arguments!\n");
 
-	free(items->item);
+	if (bag != NULL)
+		free(bag->items);
+	if (items != NULL)
+		free(items->item);
 	free(items);
-	free(bag->items);
 	free(bag);
 	free(info);
 
