@@ -18,83 +18,84 @@ COUNTER		:= 0 1 2 3 4 5 6 7 8 9 10 # 11 12 13 14 15 16 17 18 19 20		\
 #			   61 62 63 64 65 66 67 68 69 70 71 72 73 74 75 76 77 78 79 80	\
 #			   81 82 83 84 85 86 87 88 89 90 91 92 93 94 95 96 97 98 99
 
-BOOST		:= # --boost
+BOOST		:=  --boost
 
 
 compile:
 		@ $(COMPILER) $(CFLAG_DEBUG) $(CFLAG_WARN) $(SRCS) -o $(NAME)
 
 table:
+		@ clear
 		@ printf " ______ ______ _________ ________ ________ ________ ____________ _____________ \n"
 		@ printf "| Test | Time | Threads |  Goal  | Result | Weight | Iterations | Result Time |\n"
 		@ printf "|------+------+---------+--------+--------+--------+------------+-------------|\n"
 
-test_5:		compile table $(TEST_PATH)
+test_5:		compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex05.txt 2 1 ;		\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex05 \n\n"
 
-test_20:	compile table $(TEST_PATH)
+test_20:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex20_878.txt 2 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex20 \n\n"
 
-test_50:	compile table $(TEST_PATH)
+test_50:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex50_2.txt 3 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex50 \n\n"
 
-test_100:	compile table $(TEST_PATH)
+test_100:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex100_1.txt 4 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex100 \n\n"
 
-test_200:	compile table $(TEST_PATH)
+test_200:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex200_1.txt 5 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex200 \n\n"
 
-test_500:	compile table $(TEST_PATH)
+test_500:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex500_1.txt 5 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex500 \n\n"
 
-test_1000:	compile table $(TEST_PATH)
+test_1000:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex1000_1.txt 5 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex1000 \n\n"
 
-test_2000:	compile table $(TEST_PATH)
+test_2000:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex2000_1.txt 6 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex2000 \n\n"
 
-test_5000:	compile table $(TEST_PATH)
+test_5000:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do									\
 			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex5000_1.txt 7 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex5000 \n\n"
 
-test_10000:	compile table | $(TEST_PATH)
+test_10000:	compile | $(PATH_TEST) table
 		@ for number in $(COUNTER); do										\
-			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex10000_1.txt 10 3 ;	\
+			./$(NAME) $(BOOST) $$number $(PATH_TEST)/ex10000_1.txt 10 1 ;	\
 		done ;
 		@ printf " ‾‾‾‾‾‾ ‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾ ‾‾‾‾‾‾‾‾‾‾‾‾‾ \n"		
 		@ printf "\n>>>> ex10000 \n\n"
@@ -103,4 +104,4 @@ $(PATH_TEST):
 		@ unzip knap_tests.zip -d knap_tests
 
 clean:
-		@ rm -rf $(NAME) $(PATH_TEST)
+		@ rm -rf $(NAME) $(PATH_TEST) results.txt

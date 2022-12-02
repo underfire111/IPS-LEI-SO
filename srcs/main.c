@@ -98,8 +98,8 @@ void	get_args_info(char **args, bool boost)
  * That function reads the file and call out the functions responsible for proccessing its informations.
  * 
  *  @param [char *] string of character with the file path.
- *  @param [pt_items] reference to the pointer of structure s_items.
- *  @param [pt_bag] reference to the pointer of structure s_bag.
+ *  @param [pt_items *] reference to the pointer of structure s_items.
+ *  @param [pt_bag *] reference to the pointer of structure s_bag.
 */
 void	get_file_info(char *path, pt_items *items, pt_bag *bag)
 {
@@ -119,8 +119,8 @@ void	get_file_info(char *path, pt_items *items, pt_bag *bag)
  * with the current counter value. In general it gets the information out of the file
  * and imports it into the atributes.
  * 
- *  @param [pt_items] reference to the pointer of structure s_items.
- *  @param [pt_bag] reference to the pointer of structure s_bag.
+ *  @param [pt_items *] reference to the pointer of structure s_items.
+ *  @param [pt_bag *] reference to the pointer of structure s_bag.
  *  @param [char *] string of character read from file.
 */
 void	manage_file_info(pt_items *items, pt_bag *bag, char *buffer)

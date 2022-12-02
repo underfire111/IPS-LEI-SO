@@ -11,6 +11,7 @@
 #include <time.h>
 #include <unistd.h>
 
+void	register_best_result(pt_bag result, t_stats *stats);
 void	set_shared_memory(pt_bag bag, pt_bag *result, t_stats **stats);
 void	kill_all();
 void	update_all(int signum);
@@ -30,7 +31,7 @@ int		cheat = 0;
 /**
  * That function set up the shared memory, semaphores
  *  
- * @brief Project base version. 
+ *  @brief Project base version. 
  * 
  *  @param [pt_info] pointer to structure s_info.
  *  @param [pt_items] pointer to structure s_items.
@@ -64,6 +65,16 @@ void	proj_0(pt_info temp, pt_items items, pt_bag bag)
 
 }
 
+
+/**
+ * That function set up the shared memory, semaphores
+ *  
+ *  @brief Project advanced version. 
+ * 
+ *  @param [pt_info] pointer to structure s_info.
+ *  @param [pt_items] pointer to structure s_items.
+ *  @param [pt_bag] pointer to structure s_bag.
+*/
 void	proj_1(pt_info temp, pt_items items, pt_bag bag)
 {
 	t_stats *	stats;
@@ -116,6 +127,9 @@ void	proj_1(pt_info temp, pt_items items, pt_bag bag)
 	kill_all();
 	
 	sem_close(update);
+
+	if (result->curr_price > _info->best_result)
+		register_best_result(result, stats);
 	
 	printf("| %4d | %4d | %7d | %6d | %6d | %6d | %9ld  | %2.9f |\n",
 	_info->num_order, _info->time_limit, _info->num_processes,_info->best_result,
@@ -124,6 +138,46 @@ void	proj_1(pt_info temp, pt_items items, pt_bag bag)
 
 }
 
+/**
+ * That function creates if not exists and write at the end of a file
+ * the best result if the result is actually better than the best result
+ * expexted.
+ * 
+ *  @param [pt_bag] best bag found.
+ *  @param [t_stats] status of the programs.
+*/
+void	register_best_result(pt_bag result, t_stats *stats)
+{
+	FILE *	file;
+	char *	config;
+	char 	buffer[1024];
+
+	file = fopen("results.txt", "ab+");
+
+	snprintf(buffer, 1024, "| %4d | %4d | %7d | %6d | %6d | %6d | %9ld  | %2.9f |\n\n",
+		_info->num_order, _info->time_limit, _info->num_processes,_info->best_result,
+		result->curr_price,result->curr_weight, stats->iterator,
+		calc_time_in_secs(stats->time, stats->begin));
+
+
+	config = (char *)malloc(sizeof(char) * _info->num_items);
+
+	for (int i = 0; i < _info->num_items; i++)
+		config[i] = result->items[i] + 48;
+	fputs(buffer, file);
+	fputs(config, file);
+	fputs("\n\n", file);
+
+	fclose(file);
+}
+
+/**
+ * That function sets up all the share mamory needed.
+ * 
+ *  @param [pt_bag] pointer to structure s_bag.
+ *  @param [pt_bag *] reference to pointer of structure bag.
+ *  @param [t_stats **] reference to pointer of structure t_stats.
+*/
 void	set_shared_memory(pt_bag bag, pt_bag *result, t_stats **stats)
 {
 	char *	keys;
@@ -140,6 +194,9 @@ void	set_shared_memory(pt_bag bag, pt_bag *result, t_stats **stats)
 	(*(*stats)) = __init_stats();
 }
 
+/**
+ * That function sends a SIGKILL to all child processes.
+*/
 void	kill_all()
 {
 	int	status;
@@ -152,12 +209,23 @@ void	kill_all()
 	free(_info->cpids);
 }
 
+/**
+ * That function sends a signal (SIGUSR1, SIGUSR2) to all child processes.
+ * 
+ *  @param [int] signal to be sent.
+*/
 void	update_all(int signum)
 {
 	for (int i = 0; i < _info->num_processes; i++)
 		kill(_info->cpids[i], signum);
 }
 
+/**
+ * That function copy the content of a structure s_bag onto another.
+ * 
+ *  @param [pt_bag] destination structure s_bag.
+ *  @param [pt_bag] origin structure s_bag.
+*/
 void	unnamed_function(pt_bag b1, pt_bag b2)
 {
 	b1->curr_price = b2->curr_price;
@@ -165,6 +233,15 @@ void	unnamed_function(pt_bag b1, pt_bag b2)
 	memcpy(b1->items, b2->items, sizeof(char) * _info->num_items);
 }
 
+/**
+ *  @brief Base version of child process.
+ * 
+ *  @param [pt_items] pointer to structure s_item.
+ *  @param [pt_bag] poiter to structure s_bag.
+ *  @param [pt_bag] poiter to structure s_bag.
+ *  @param [sem_t *] pointer to semaphore.
+ *  @param [t_stats *] pointer to structure s_stats.
+*/
 void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update, t_stats *stats)
 {
 	size_t		iterator;
@@ -190,6 +267,15 @@ void	generate_results_0(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 	}
 }
 
+/**
+ *  @brief Advanced version of child process.
+ * 
+ *  @param [pt_items] pointer to structure s_item.
+ *  @param [pt_bag] poiter to structure s_bag.
+ *  @param [pt_bag] poiter to structure s_bag.
+ *  @param [sem_t *] pointer to semaphore.
+ *  @param [t_stats *] pointer to structure s_stats.
+*/
 void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update, t_stats *stats)
 {
 	size_t		iterator;
@@ -228,6 +314,16 @@ void	generate_results_1(pt_items items, pt_bag bag, pt_bag result, sem_t *update
 	}
 }
 
+/**
+ * That function flips the bit of the item at the respective index passed by parameter
+ * into the bag array of items.
+ * 
+ *  @brief Base version of bag update.
+ * 
+ *  @param [pt_items] pointer to structure s_items.
+ *  @param [pt_bag] pointer to structure s_bag.
+ *  @param [int] index of the items to be fliped.
+*/
 void	update_bag_status_0(pt_items items, pt_bag bag, int index)
 {
 	if (bag->items[index] == 0)
@@ -244,6 +340,16 @@ void	update_bag_status_0(pt_items items, pt_bag bag, int index)
 	}
 }
 
+/**
+ * That function flips the bit, if it doesn't overweight the bag, of the item at the
+ * respective index passed by parameter into the bag array of items.
+ * 
+ *  @brief Base version of bag update.
+ * 
+ *  @param [pt_items] pointer to structure s_items.
+ *  @param [pt_bag] pointer to structure s_bag.
+ *  @param [int] index of the items to be fliped.
+*/
 void	update_bag_status_1(pt_items items, pt_bag bag, int index)
 {
 	int	curr_weight;
@@ -266,6 +372,11 @@ void	update_bag_status_1(pt_items items, pt_bag bag, int index)
 	}
 }
 
+/**
+ * That function handle signals SIGUSR1 get by parent process.
+ * 
+ *  @param [int] signal.
+*/
 void	signal_handler_parent(int signum)
 {
 	static long counter = 0;
@@ -274,6 +385,11 @@ void	signal_handler_parent(int signum)
 		update_all(SIGUSR2);
 }
 
+/**
+ * That function handle signals SIGUSR1 and SIGUSR2 get by child processes.
+ * 
+ *  @param [int] signal.
+*/
 void	signal_handler_child(int signum)
 {
 	if (signum == SIGUSR1)
@@ -282,6 +398,14 @@ void	signal_handler_child(int signum)
 		cheat = 1;
 }
 
+/**
+ * That function calculate the diference between to times.
+ *  
+ *  @param [struct timeval] final time.
+ *  @param [struct timeval] begin time.
+ * 
+ *  @return [double] time elapsed.
+*/
 double	calc_time_in_secs(struct timeval t1, struct timeval t2)
 {
 	return ((t1.tv_sec - t2.tv_sec) + (t1.tv_usec - t2.tv_usec) / 1000000.0);
